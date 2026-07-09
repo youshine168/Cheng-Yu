@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>佛堂行事曆</title>
+<title>發一天元・曹老道場・佛堂行事曆</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
@@ -15,22 +15,26 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding-bottom:90px}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding-bottom:40px}
 .wrap{max-width:640px;margin:0 auto;padding:0 14px}
 /* header */
 header{background:linear-gradient(180deg,#FFFDF8,var(--bg));border-bottom:1px solid var(--line);padding:18px 0 14px}
 .h-row{display:flex;align-items:center;justify-content:space-between}
 h1{font-family:'Noto Serif TC',serif;font-size:1.45rem;color:var(--brown);letter-spacing:.12em}
-h1 small{display:block;font-size:.7rem;color:var(--gold);letter-spacing:.35em;font-weight:600;margin-top:2px}
+h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;font-weight:600;margin-bottom:2px}
 .btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 14px;font-size:.9rem;font-family:inherit;cursor:pointer}
 .btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
 .btn.ghost{background:transparent}
 .btn.danger{color:#A03A2E;border-color:#E3C4BE}
+.btn.big{display:block;width:100%;padding:14px;font-size:1.05rem;letter-spacing:.15em;margin:16px 0}
 .btn:active{opacity:.75}
 /* controls */
-.controls{display:flex;gap:10px;margin:14px 0}
-select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 10px;font-size:.95rem;font-family:inherit;color:var(--ink);appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8"><path d="M1 1l5 5 5-5" stroke="%23A8823C" stroke-width="2" fill="none"/></svg>');background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.controls{display:flex;gap:10px;margin:14px 0;align-items:center}
+.chips{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:7px 14px;font-size:.88rem;color:var(--ink2);cursor:pointer;font-family:inherit;white-space:nowrap}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card);flex-shrink:0}
 .seg button{border:none;background:transparent;padding:9px 16px;font-size:.9rem;font-family:inherit;color:var(--ink2);cursor:pointer}
 .seg button.on{background:var(--gold);color:#fff}
 /* month nav */
@@ -71,16 +75,28 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
 .ev-body .row{display:flex;gap:8px;margin-top:8px}
 .ev-body .lbl{color:var(--gold);flex-shrink:0;font-weight:500}
 .ev-body a.linkbtn{display:inline-block;margin-top:10px;background:var(--gold);color:#fff;text-decoration:none;padding:8px 18px;border-radius:8px;font-size:.88rem}
-.ev-admin{display:flex;gap:8px;margin-top:12px}
 /* legend */
 .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:18px 0 10px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
 .legend .li{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--ink2)}
-/* admin bar */
-.adminbar{position:fixed;bottom:0;left:0;right:0;background:#FFFDF8;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:none;box-shadow:0 -3px 14px rgba(90,70,40,.08)}
-.adminbar.on{display:block}
-.adminbar .inner{max-width:640px;margin:0 auto;display:flex;gap:6px;align-items:center}
-.adminbar .inner .btn{padding:7px 10px;font-size:.85rem;white-space:nowrap;flex-shrink:0}
-.adminbar .who{font-size:.75rem;color:var(--ink2);margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* admin page */
+.admin-head{display:flex;align-items:center;justify-content:space-between;margin:20px 0 14px;gap:10px}
+.admin-name{font-family:'Noto Serif TC',serif;font-size:1.15rem;color:var(--brown);display:flex;align-items:center;gap:8px;min-width:0}
+.admin-name span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge-admin{border:1px solid var(--gold);color:var(--gold);font-size:.68rem;padding:1px 8px;border-radius:4px;letter-spacing:.2em;font-family:'Noto Sans TC';flex-shrink:0}
+.admin-head .btns{display:flex;gap:8px;flex-shrink:0}
+.notice{border:1px solid var(--gold-soft);border-left:3px solid var(--gold);background:#FFFDF8;color:var(--ink2);font-size:.85rem;padding:10px 14px;border-radius:8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:16px 0}
+.panel h2{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px;letter-spacing:.08em}
+.mini{border:none;background:none;color:var(--gold);font-size:.78rem;font-family:inherit;cursor:pointer;padding:0;text-decoration:underline}
+/* admin event list */
+.arow{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:11px 14px;margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.arow .info{flex:1;min-width:0}
+.arow .adate{font-size:.8rem;color:var(--ink2)}
+.arow .aname{font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.arow .asub{font-size:.78rem;color:var(--ink2)}
+.arow .btns{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.arow .btns .btn{padding:5px 12px;font-size:.82rem}
+.sec-title{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1rem;margin:20px 0 10px;letter-spacing:.08em}
 /* modal */
 .mask{position:fixed;inset:0;background:rgba(50,40,25,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
 .mask.on{display:flex}
@@ -91,11 +107,11 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
 .f label .req{color:#A03A2E}
 .f input,.f select,.f textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:16px;font-family:inherit;background:#FFFDF8;color:var(--ink)}
 .f textarea{min-height:70px;resize:vertical}
+.f .lrow{display:flex;justify-content:space-between;align-items:baseline}
+.checkline{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--ink)}
+.checkline input{width:18px;height:18px;accent-color:var(--gold)}
 .m-actions{display:flex;gap:10px;margin-top:16px}
 .m-actions .btn{flex:1;padding:12px;font-size:1rem}
-/* admin panel（頁面內嵌表單，比照光耀後台） */
-.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:18px 0}
-.panel h2{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px;letter-spacing:.08em}
 /* toast & banner */
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--brown);color:#fff;padding:9px 20px;border-radius:24px;font-size:.85rem;z-index:99;display:none;white-space:nowrap}
 .banner{background:#FBF3DF;border:1px solid var(--gold-soft);color:var(--brown);font-size:.82rem;padding:9px 12px;border-radius:8px;margin:10px 0}
@@ -106,17 +122,18 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
 
 <header>
   <div class="wrap h-row">
-    <h1>佛堂行事曆<small>誠 善 仁 天 · 同修共辦</small></h1>
+    <h1><small>發一天元 ・ 曹老道場</small>佛堂行事曆</h1>
     <button class="btn ghost" id="adminBtn" style="color:var(--gold)">管理</button>
   </div>
 </header>
 
-<div class="wrap">
+<!-- ================= 前台 ================= -->
+<div class="wrap" id="mainView">
   <div id="apiBanner" class="banner" style="display:none">尚未連接後端：請在程式碼開頭填入 Apps Script 網址（API_URL）。</div>
   <div id="loading">資料更新中…</div>
 
   <div class="controls">
-    <select class="temple" id="templeSel"></select>
+    <div class="chips" id="templeChips"></div>
     <div class="seg">
       <button id="viewCal" class="on">月曆</button>
       <button id="viewList">列表</button>
@@ -141,47 +158,63 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
   <div id="listView" style="display:none"></div>
 
   <div class="legend" id="legend"></div>
-
-  <!-- 管理表單（登入後顯示在頁面下方） -->
-  <section class="panel" id="adminPanel" style="display:none">
-    <h2 id="evFormTitle">新增日程</h2>
-    <div class="f"><label>所屬佛堂 <span class="req">＊</span></label><select id="fTemple"></select></div>
-    <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
-    <div class="f"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
-    <div class="f" style="display:flex;gap:10px">
-      <div style="flex:1"><label>起始時間</label><input type="time" id="fStart"></div>
-      <div style="flex:1"><label>結束時間</label><input type="time" id="fEnd"></div>
-    </div>
-    <div class="f"><label>類型</label><select id="fType"></select></div>
-    <div class="f"><label>地點</label><input id="fPlace"></div>
-    <div class="f"><label>連結（報名表單、直播網址）</label><input type="url" id="fLink" placeholder="https://"></div>
-    <div class="f"><label>備註</label><textarea id="fNote"></textarea></div>
-    <div class="m-actions">
-      <button class="btn" id="evCancel">清除重填</button>
-      <button class="btn gold" id="evSave">儲存</button>
-    </div>
-  </section>
 </div>
 
-<div class="adminbar" id="adminBar">
-  <div class="inner">
-    <span class="who" id="adminWho"></span>
-    <button class="btn gold" id="addEvBtn">＋日程</button>
-    <button class="btn" id="addTempleBtn">＋佛堂</button>
-    <button class="btn" id="addTypeBtn">＋類型</button>
-    <button class="btn ghost" id="logoutBtn" style="color:var(--ink2)">登出</button>
-  </div>
-</div>
+<!-- ================= 管理入口 ================= -->
+<div class="wrap" id="adminView" style="display:none">
 
-<!-- 登入 -->
-<div class="mask" id="loginMask">
-  <div class="modal">
+  <!-- 登入 -->
+  <section class="panel" id="loginCard" style="margin-top:24px">
     <h2>管理員登入</h2>
-    <div class="f"><label>管理員代碼</label><input type="password" id="loginCode" autocomplete="off"></div>
+    <div class="f"><label>名稱</label><input id="loginName" placeholder="例：誠鈺佛堂" autocomplete="off"></div>
+    <div class="f"><label>密碼</label><input type="password" id="loginCode" autocomplete="off"></div>
     <div class="m-actions">
-      <button class="btn" onclick="hide('loginMask')">取消</button>
+      <button class="btn" onclick="location.hash=''">回行事曆</button>
       <button class="btn gold" id="loginGo">登入</button>
     </div>
+  </section>
+
+  <!-- 管理主頁 -->
+  <div id="adminHome" style="display:none">
+    <div class="admin-head">
+      <div class="admin-name"><span id="adminWho"></span><span class="badge-admin">管理員</span></div>
+      <div class="btns">
+        <button class="btn" onclick="location.hash=''">回行事曆</button>
+        <button class="btn" id="logoutBtn">登出</button>
+      </div>
+    </div>
+    <div class="notice">這裡新增或修改的日程會存進雲端資料庫，所有人打開網頁都看得到最新內容。</div>
+
+    <button class="btn gold big" id="addEvBtn">＋ 新增日程</button>
+
+    <!-- 日程表單（按「新增日程」或「編輯」才展開） -->
+    <section class="panel" id="adminPanel" style="display:none;margin-top:0">
+      <h2 id="evFormTitle">新增日程</h2>
+      <div class="f">
+        <div class="lrow"><label>所屬佛堂 <span class="req">＊</span></label><button class="mini" id="addTempleBtn">＋新增佛堂</button></div>
+        <select id="fTemple"></select>
+      </div>
+      <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
+      <div class="f"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
+      <div class="f"><label class="checkline" style="margin-bottom:0"><input type="checkbox" id="fAllday">全天</label></div>
+      <div class="f" style="display:flex;gap:10px">
+        <div style="flex:1"><label>起始時間</label><input type="time" id="fStart"></div>
+        <div style="flex:1"><label>結束時間</label><input type="time" id="fEnd"></div>
+      </div>
+      <div class="f">
+        <div class="lrow"><label>類型</label><button class="mini" id="addTypeBtn">＋新增類型</button></div>
+        <select id="fType"></select>
+      </div>
+      <div class="f"><label>地點</label><input id="fPlace"></div>
+      <div class="f"><label>連結（報名表單、直播網址）</label><input type="url" id="fLink" placeholder="https://"></div>
+      <div class="f"><label>備註</label><textarea id="fNote"></textarea></div>
+      <div class="m-actions">
+        <button class="btn" id="evCancel">取消</button>
+        <button class="btn gold" id="evSave">儲存</button>
+      </div>
+    </section>
+
+    <div id="adminList"></div>
   </div>
 </div>
 
@@ -214,11 +247,13 @@ const DEFAULT_TYPES = [
   {name:'培訓班',      color:'#B08830'},
   {name:'辦道',        color:'#9C3D3D'},
   {name:'彈性活動',     color:'#77746A'},
+  {name:'獻供',        color:'#C08A2E'},
+  {name:'會議',        color:'#5B7A6A'},
 ];
 
 let data = {events:[], temples:DEFAULT_TEMPLES.slice(), types:DEFAULT_TYPES.slice()};
 let state = {view:'cal', temple:'全部', month:new Date(), selDate:fmtDate(new Date()), editingId:null};
-let admin = null; // {code,name}
+let admin = null; // {name, code}
 
 const $ = id => document.getElementById(id);
 function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -227,6 +262,7 @@ function hide(id){ $(id).classList.remove('on'); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2200); }
 function typeColor(name){ const t=data.types.find(x=>x.name===name); return t?t.color:'#77746A'; }
 function esc(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
+function timeText(e){ return e.start ? e.start+(e.end?'–'+e.end:'') : '全天'; }
 
 /* ---------- API ---------- */
 async function apiGet(){
@@ -245,7 +281,8 @@ async function apiGet(){
 }
 async function apiPost(body){
   // ponytail: text/plain 避開 CORS 預檢，GAS 端 JSON.parse
-  const r = await fetch(API_URL, {method:'POST', body:JSON.stringify(Object.assign({code:admin?admin.code:''}, body))});
+  const auth = admin ? {adminName:admin.name, code:admin.code} : {};
+  const r = await fetch(API_URL, {method:'POST', body:JSON.stringify(Object.assign(auth, body))});
   return r.json();
 }
 
@@ -256,19 +293,18 @@ function eventsFiltered(){
   return evs.slice().sort((a,b)=> a.date===b.date ? (a.start||'').localeCompare(b.start||'') : a.date.localeCompare(b.date));
 }
 function renderAll(){
-  renderTempleSel(); renderMonth(); renderLegend();
+  renderChips(); renderMonth(); renderLegend(); renderAdminList();
   if(admin){ // 資料更新後同步表單選項（保留目前選取）
     const t=$('fTemple').value, y=$('fType').value;
     $('fTemple').innerHTML = data.temples.map(x=>`<option ${x===t?'selected':''}>${esc(x)}</option>`).join('');
     $('fType').innerHTML = data.types.map(x=>`<option ${x.name===y?'selected':''}>${esc(x.name)}</option>`).join('');
   }
 }
-
-function renderTempleSel(){
-  const cur = state.temple;
-  $('templeSel').innerHTML = '<option value="全部">全部佛堂</option>' +
-    data.temples.map(t=>`<option ${t===cur?'selected':''}>${esc(t)}</option>`).join('');
-  if(!['全部',...data.temples].includes(cur)) state.temple='全部';
+function renderChips(){
+  if(!['全部',...data.temples].includes(state.temple)) state.temple='全部';
+  $('templeChips').innerHTML = ['全部',...data.temples].map(t=>
+    `<button class="chip ${t===state.temple?'on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('');
+  $('templeChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ state.temple=c.dataset.t; renderChips(); renderMonth(); });
 }
 function renderLegend(){
   $('legend').innerHTML = data.types.map(t=>
@@ -299,10 +335,9 @@ function renderCal(y,m){
   $('calGrid').querySelectorAll('.cell').forEach(c=>c.onclick=()=>{ state.selDate=c.dataset.d; renderCal(y,m); renderDay(); });
 }
 function evCard(e){
-  const time = e.start ? e.start+(e.end?'–'+e.end:'') : '';
-  return `<div class="ev" style="border-left-color:${typeColor(e.type)}" data-id="${esc(e.id)}">
+  return `<div class="ev" style="border-left-color:${typeColor(e.type)}">
     <div class="ev-main" onclick="this.parentNode.classList.toggle('open')">
-      <span class="ev-time">${esc(time)||'全日'}</span>
+      <span class="ev-time">${esc(timeText(e))}</span>
       <span class="ev-name">${esc(e.name)}</span>
       <span class="ev-tags">
         ${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${esc(e.type)}</span>`:''}
@@ -311,12 +346,9 @@ function evCard(e){
     </div>
     <div class="ev-body">
       ${e.place?`<div class="row"><span class="lbl">地點</span><span>${esc(e.place)}</span></div>`:''}
-      <div class="row"><span class="lbl">日期</span><span>${esc(e.date)} ${esc(time)}</span></div>
+      <div class="row"><span class="lbl">日期</span><span>${esc(e.date)} ${esc(timeText(e))}</span></div>
       ${e.note?`<div class="row"><span class="lbl">備註</span><span>${esc(e.note)}</span></div>`:''}
       ${e.link?`<a class="linkbtn" href="${esc(e.link)}" target="_blank" rel="noopener">🔗 開啟連結</a>`:''}
-      ${admin?`<div class="ev-admin">
-        <button class="btn" onclick="editEv('${esc(e.id)}')">編輯</button>
-        <button class="btn danger" onclick="delEv('${esc(e.id)}')">刪除</button></div>`:''}
     </div>
   </div>`;
 }
@@ -353,54 +385,104 @@ function setView(v){
 }
 $('viewCal').onclick=()=>setView('cal');
 $('viewList').onclick=()=>setView('list');
-$('templeSel').onchange=e=>{ state.temple=e.target.value; renderMonth(); };
 $('prevM').onclick=()=>{ state.month.setMonth(state.month.getMonth()-1); renderMonth(); };
 $('nextM').onclick=()=>{ state.month.setMonth(state.month.getMonth()+1); renderMonth(); };
 $('goToday').onclick=()=>{ state.month=new Date(); state.selDate=fmtDate(new Date()); renderMonth(); };
 
+/* ---------- 路由：#admin = 管理入口 ---------- */
+function route(){
+  const onAdmin = location.hash === '#admin';
+  $('mainView').style.display = onAdmin?'none':'';
+  $('adminView').style.display = onAdmin?'':'none';
+  if(onAdmin){
+    $('loginCard').style.display = admin?'none':'';
+    $('adminHome').style.display = admin?'':'none';
+    renderAdminList();
+  }
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route);
+$('adminBtn').onclick=()=>{ if(!API_URL) return toast('請先連接後端'); location.hash='#admin'; };
+
 /* ---------- 管理員 ---------- */
 function setAdmin(a){
   admin=a;
-  $('adminBar').classList.toggle('on',!!a);
-  $('adminBtn').style.display = a?'none':'';
-  $('adminPanel').style.display = a?'':'none';
-  if(a){ $('adminWho').textContent='管理員：'+a.name; localStorage.setItem('ft_admin', JSON.stringify(a)); resetEvForm(); }
+  if(a){ $('adminWho').textContent=a.name; localStorage.setItem('ft_admin', JSON.stringify(a)); }
   else localStorage.removeItem('ft_admin');
-  renderMonth();
+  closeEvForm();
+  route(); renderAll();
 }
-$('adminBtn').onclick=()=>{ if(!API_URL) return toast('請先連接後端'); $('loginCode').value=''; show('loginMask'); $('loginCode').focus(); };
 $('logoutBtn').onclick=()=>setAdmin(null);
 $('loginGo').onclick=async()=>{
-  const code=$('loginCode').value.trim();
-  if(!code) return;
+  const name=$('loginName').value.trim(), code=$('loginCode').value.trim();
+  if(!name||!code) return toast('請輸入名稱與密碼');
   $('loginGo').textContent='驗證中…';
   try{
-    const j = await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',code})}).then(r=>r.json());
-    if(j.ok){ hide('loginMask'); setAdmin({code,name:j.name}); toast('歡迎，'+j.name); }
-    else toast(j.error||'代碼錯誤');
+    const j = await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',adminName:name,code})}).then(r=>r.json());
+    if(j.ok){ setAdmin({name:j.name,code}); toast('歡迎，'+j.name); }
+    else toast(j.error||'名稱或密碼錯誤');
   }catch(e){ toast('連線失敗'); }
   $('loginGo').textContent='登入';
 };
 
-/* ---------- 日程表單（頁面內嵌） ---------- */
+/* ---------- 管理日程清單 ---------- */
+function arow(e){
+  return `<div class="arow" style="border-left-color:${typeColor(e.type)}">
+    <div class="info">
+      <div class="adate">${esc(e.date)}　${esc(timeText(e))}</div>
+      <div class="aname">${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${esc(e.type)}</span>`:''}${esc(e.name)}</div>
+      <div class="asub">${esc(e.temple)}${e.place?'｜'+esc(e.place):''}</div>
+    </div>
+    <div class="btns">
+      <button class="btn" onclick="editEv('${esc(e.id)}')">編輯</button>
+      <button class="btn danger" onclick="delEv('${esc(e.id)}')">刪除</button>
+    </div>
+  </div>`;
+}
+function renderAdminList(){
+  if(!admin || location.hash!=='#admin') return;
+  const todayS = fmtDate(new Date());
+  const evs = data.events.slice().sort((a,b)=> a.date===b.date ? (a.start||'').localeCompare(b.start||'') : a.date.localeCompare(b.date));
+  const up = evs.filter(e=>e.date>=todayS);
+  const past = evs.filter(e=>e.date<todayS).reverse();
+  let html='';
+  html += '<div class="sec-title">近期與未來日程</div>';
+  html += up.length ? up.map(arow).join('') : '<div class="empty">目前沒有排定的日程</div>';
+  if(past.length) html += '<div class="sec-title">過往日程</div>' + past.map(arow).join('');
+  $('adminList').innerHTML = html;
+}
+
+/* ---------- 日程表單 ---------- */
+function syncAllday(){
+  const on = $('fAllday').checked;
+  $('fStart').disabled = $('fEnd').disabled = on;
+  if(on){ $('fStart').value=''; $('fEnd').value=''; }
+}
+$('fAllday').onchange=syncAllday;
 function fillEvForm(ev){
   state.editingId = ev?ev.id:null;
   $('evFormTitle').textContent = ev?'編輯日程':'新增日程';
   $('fTemple').innerHTML = data.temples.map(t=>`<option ${ev&&ev.temple===t?'selected':''}>${esc(t)}</option>`).join('');
   $('fType').innerHTML = data.types.map(t=>`<option ${ev&&ev.type===t.name?'selected':''}>${esc(t.name)}</option>`).join('');
   $('fName').value = ev?ev.name:'';
-  $('fDate').value = ev?ev.date:state.selDate;
+  $('fDate').value = ev?ev.date:fmtDate(new Date());
   $('fStart').value = ev?ev.start:'';
   $('fEnd').value = ev?ev.end:'';
+  $('fAllday').checked = ev ? !ev.start : false;
+  syncAllday();
   $('fPlace').value = ev?ev.place:'';
   $('fLink').value = ev?ev.link:'';
   $('fNote').value = ev?ev.note:'';
 }
-function resetEvForm(){ fillEvForm(null); }
-function gotoForm(){ $('adminPanel').scrollIntoView({behavior:'smooth'}); $('fName').focus({preventScroll:true}); }
-$('addEvBtn').onclick=()=>{ resetEvForm(); gotoForm(); };
-$('evCancel').onclick=()=>resetEvForm();
-window.editEv = id=>{ const e=data.events.find(x=>x.id===id); if(e){ fillEvForm(e); gotoForm(); } };
+function openEvForm(ev){
+  fillEvForm(ev);
+  $('adminPanel').style.display='';
+  $('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeEvForm(){ $('adminPanel').style.display='none'; state.editingId=null; }
+$('addEvBtn').onclick=()=>openEvForm(null);
+$('evCancel').onclick=closeEvForm;
+window.editEv = id=>{ const e=data.events.find(x=>x.id===id); if(e) openEvForm(e); };
 window.delEv = async id=>{
   if(!confirm('確定要刪除這筆日程嗎？')) return;
   const j = await apiPost({action:'deleteEvent', id});
@@ -409,42 +491,43 @@ window.delEv = async id=>{
 $('evSave').onclick=async()=>{
   const ev = {
     temple:$('fTemple').value, name:$('fName').value.trim(), date:$('fDate').value,
-    start:$('fStart').value, end:$('fEnd').value, type:$('fType').value,
-    place:$('fPlace').value.trim(), link:$('fLink').value.trim(), note:$('fNote').value.trim(),
+    start:$('fAllday').checked?'':$('fStart').value, end:$('fAllday').checked?'':$('fEnd').value,
+    type:$('fType').value, place:$('fPlace').value.trim(), link:$('fLink').value.trim(), note:$('fNote').value.trim(),
   };
   if(!ev.temple||!ev.name||!ev.date) return toast('佛堂、名稱、日期為必填');
   $('evSave').textContent='儲存中…';
   const j = await apiPost(state.editingId ? Object.assign({action:'updateEvent',id:state.editingId},ev)
                                           : Object.assign({action:'addEvent'},ev));
   $('evSave').textContent='儲存';
-  if(j.ok){ resetEvForm(); toast('已儲存'); apiGet(); } else toast(j.error||'儲存失敗');
+  if(j.ok){ closeEvForm(); toast('已儲存'); apiGet(); } else toast(j.error||'儲存失敗');
 };
 
 /* ---------- 新增佛堂／類型 ---------- */
-function openOne(title, placeholder, action){
+function openOne(title, placeholder, action, selId){
   $('oneTitle').textContent=title;
   $('oneInput').value=''; $('oneInput').placeholder=placeholder;
   $('oneGo').onclick=async()=>{
     const name=$('oneInput').value.trim();
     if(!name) return;
     const j = await apiPost({action, name});
-    if(j.ok){ hide('oneMask'); toast('已新增'); apiGet(); } else toast(j.error||'新增失敗');
+    if(j.ok){ hide('oneMask'); toast('已新增'); await apiGet(); if(selId) $(selId).value=name; }
+    else toast(j.error||'新增失敗');
   };
   show('oneMask'); $('oneInput').focus();
 }
-$('addTempleBtn').onclick=()=>openOne('新增家庭佛堂','輸入佛堂名稱','addTemple');
-$('addTypeBtn').onclick=()=>openOne('新增活動類型','輸入類型名稱','addType');
+$('addTempleBtn').onclick=()=>openOne('新增家庭佛堂','輸入佛堂名稱','addTemple','fTemple');
+$('addTypeBtn').onclick=()=>openOne('新增活動類型','輸入類型名稱','addType','fType');
 
 /* ---------- 啟動 ---------- */
 (function init(){
   try{ const c=localStorage.getItem('ft_cache_v1'); if(c) data=JSON.parse(c); }catch(e){}
-  renderAll();
+  renderAll(); route();
   try{
     const a=localStorage.getItem('ft_admin');
     if(a && API_URL){
       const saved=JSON.parse(a);
-      fetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',code:saved.code})})
-        .then(r=>r.json()).then(j=>{ if(j.ok) setAdmin({code:saved.code,name:j.name}); else setAdmin(null); })
+      fetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',adminName:saved.name,code:saved.code})})
+        .then(r=>r.json()).then(j=>{ if(j.ok) setAdmin({name:j.name,code:saved.code}); else if(location.hash==='#admin') route(); })
         .catch(()=>{});
     }
   }catch(e){}
