@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>發一天元・曹老道場・佛堂行事曆</title>
+<meta property="og:title" content="發一天元・曹老道場・佛堂行事曆">
+<meta property="og:description" content="四間公壇與家庭佛堂日程總覽，法會、辦道、班程一目了然">
+<meta property="og:image" content="https://youshine168.github.io/Cheng-Yu/og.jpg">
+<meta property="og:url" content="https://youshine168.github.io/Cheng-Yu/">
+<meta property="og:type" content="website">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
@@ -106,7 +113,9 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .f{margin-bottom:12px}
 .f label{display:block;font-size:.8rem;color:var(--ink2);margin-bottom:4px}
 .f label .req{color:#A03A2E}
-.f input,.f select,.f textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:16px;font-family:inherit;background:#FFFDF8;color:var(--ink)}
+.f input,.f select,.f textarea{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:16px;font-family:inherit;background:#FFFDF8;color:var(--ink)}
+/* iOS 的日期/時間輸入框給固定高度並靠左，避免擠版 */
+.f input[type=date],.f input[type=time]{-webkit-appearance:none;appearance:none;min-height:46px;text-align:left}
 .f textarea{min-height:70px;resize:vertical}
 .f .lrow{display:flex;justify-content:space-between;align-items:baseline}
 .tseg{display:flex;width:100%}
@@ -198,17 +207,15 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
         <input id="fTempleX" placeholder="輸入佛堂名稱（僅這筆日程使用）" style="display:none;margin-top:8px">
       </div>
       <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
-      <div class="f" style="display:flex;gap:10px">
-        <div style="flex:1"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
-        <div style="flex:1"><label>結束日期（跨日才填）</label><input type="date" id="fEndDate"></div>
-      </div>
+      <div class="f"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
+      <div class="f"><label>結束日期（跨日才填，單日免填）</label><input type="date" id="fEndDate"></div>
       <div class="f">
         <label>時間</label>
         <div class="seg tseg"><button type="button" id="tTimed" class="on">指定時間</button><button type="button" id="tAllday">全天</button></div>
       </div>
-      <div class="f" id="timeRow" style="display:flex;gap:10px">
-        <div style="flex:1"><label>起始時間</label><input type="time" id="fStart"></div>
-        <div style="flex:1"><label>結束時間</label><input type="time" id="fEnd"></div>
+      <div class="f" id="timeRow" style="display:flex;gap:14px">
+        <div style="flex:1;min-width:0"><label>起始時間</label><input type="time" id="fStart"></div>
+        <div style="flex:1;min-width:0"><label>結束時間</label><input type="time" id="fEnd"></div>
       </div>
       <div class="f">
         <div class="lrow"><label>類型</label><button class="mini" id="addTypeBtn">＋新增類型</button></div>
