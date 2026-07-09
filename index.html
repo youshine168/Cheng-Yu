@@ -78,8 +78,9 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
 /* admin bar */
 .adminbar{position:fixed;bottom:0;left:0;right:0;background:#FFFDF8;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:none;box-shadow:0 -3px 14px rgba(90,70,40,.08)}
 .adminbar.on{display:block}
-.adminbar .inner{max-width:640px;margin:0 auto;display:flex;gap:8px;align-items:center}
-.adminbar .who{font-size:.8rem;color:var(--ink2);margin-right:auto}
+.adminbar .inner{max-width:640px;margin:0 auto;display:flex;gap:6px;align-items:center}
+.adminbar .inner .btn{padding:7px 10px;font-size:.85rem;white-space:nowrap;flex-shrink:0}
+.adminbar .who{font-size:.75rem;color:var(--ink2);margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* modal */
 .mask{position:fixed;inset:0;background:rgba(50,40,25,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
 .mask.on{display:flex}
@@ -92,6 +93,9 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
 .f textarea{min-height:70px;resize:vertical}
 .m-actions{display:flex;gap:10px;margin-top:16px}
 .m-actions .btn{flex:1;padding:12px;font-size:1rem}
+/* admin panel（頁面內嵌表單，比照光耀後台） */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:18px 0}
+.panel h2{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px;letter-spacing:.08em}
 /* toast & banner */
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--brown);color:#fff;padding:9px 20px;border-radius:24px;font-size:.85rem;z-index:99;display:none;white-space:nowrap}
 .banner{background:#FBF3DF;border:1px solid var(--gold-soft);color:var(--brown);font-size:.82rem;padding:9px 12px;border-radius:8px;margin:10px 0}
@@ -137,6 +141,26 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
   <div id="listView" style="display:none"></div>
 
   <div class="legend" id="legend"></div>
+
+  <!-- 管理表單（登入後顯示在頁面下方） -->
+  <section class="panel" id="adminPanel" style="display:none">
+    <h2 id="evFormTitle">新增日程</h2>
+    <div class="f"><label>所屬佛堂 <span class="req">＊</span></label><select id="fTemple"></select></div>
+    <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
+    <div class="f"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
+    <div class="f" style="display:flex;gap:10px">
+      <div style="flex:1"><label>起始時間</label><input type="time" id="fStart"></div>
+      <div style="flex:1"><label>結束時間</label><input type="time" id="fEnd"></div>
+    </div>
+    <div class="f"><label>類型</label><select id="fType"></select></div>
+    <div class="f"><label>地點</label><input id="fPlace"></div>
+    <div class="f"><label>連結（報名表單、直播網址）</label><input type="url" id="fLink" placeholder="https://"></div>
+    <div class="f"><label>備註</label><textarea id="fNote"></textarea></div>
+    <div class="m-actions">
+      <button class="btn" id="evCancel">清除重填</button>
+      <button class="btn gold" id="evSave">儲存</button>
+    </div>
+  </section>
 </div>
 
 <div class="adminbar" id="adminBar">
@@ -157,28 +181,6 @@ select.temple{flex:1;min-width:0;border:1px solid var(--line);background:var(--c
     <div class="m-actions">
       <button class="btn" onclick="hide('loginMask')">取消</button>
       <button class="btn gold" id="loginGo">登入</button>
-    </div>
-  </div>
-</div>
-
-<!-- 日程表單 -->
-<div class="mask" id="evMask">
-  <div class="modal">
-    <h2 id="evFormTitle">新增日程</h2>
-    <div class="f"><label>所屬佛堂 <span class="req">＊</span></label><select id="fTemple"></select></div>
-    <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
-    <div class="f"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
-    <div class="f" style="display:flex;gap:10px">
-      <div style="flex:1"><label>起始時間</label><input type="time" id="fStart"></div>
-      <div style="flex:1"><label>結束時間</label><input type="time" id="fEnd"></div>
-    </div>
-    <div class="f"><label>類型</label><select id="fType"></select></div>
-    <div class="f"><label>地點</label><input id="fPlace"></div>
-    <div class="f"><label>連結（報名表單、直播網址）</label><input type="url" id="fLink" placeholder="https://"></div>
-    <div class="f"><label>備註</label><textarea id="fNote"></textarea></div>
-    <div class="m-actions">
-      <button class="btn" onclick="hide('evMask')">取消</button>
-      <button class="btn gold" id="evSave">儲存</button>
     </div>
   </div>
 </div>
@@ -253,7 +255,14 @@ function eventsFiltered(){
   if(state.temple!=='全部') evs = evs.filter(e=>e.temple===state.temple);
   return evs.slice().sort((a,b)=> a.date===b.date ? (a.start||'').localeCompare(b.start||'') : a.date.localeCompare(b.date));
 }
-function renderAll(){ renderTempleSel(); renderMonth(); renderLegend(); }
+function renderAll(){
+  renderTempleSel(); renderMonth(); renderLegend();
+  if(admin){ // 資料更新後同步表單選項（保留目前選取）
+    const t=$('fTemple').value, y=$('fType').value;
+    $('fTemple').innerHTML = data.temples.map(x=>`<option ${x===t?'selected':''}>${esc(x)}</option>`).join('');
+    $('fType').innerHTML = data.types.map(x=>`<option ${x.name===y?'selected':''}>${esc(x.name)}</option>`).join('');
+  }
+}
 
 function renderTempleSel(){
   const cur = state.temple;
@@ -354,7 +363,8 @@ function setAdmin(a){
   admin=a;
   $('adminBar').classList.toggle('on',!!a);
   $('adminBtn').style.display = a?'none':'';
-  if(a){ $('adminWho').textContent='管理員：'+a.name; localStorage.setItem('ft_admin', JSON.stringify(a)); }
+  $('adminPanel').style.display = a?'':'none';
+  if(a){ $('adminWho').textContent='管理員：'+a.name; localStorage.setItem('ft_admin', JSON.stringify(a)); resetEvForm(); }
   else localStorage.removeItem('ft_admin');
   renderMonth();
 }
@@ -372,8 +382,8 @@ $('loginGo').onclick=async()=>{
   $('loginGo').textContent='登入';
 };
 
-/* ---------- 日程表單 ---------- */
-function openEvForm(ev){
+/* ---------- 日程表單（頁面內嵌） ---------- */
+function fillEvForm(ev){
   state.editingId = ev?ev.id:null;
   $('evFormTitle').textContent = ev?'編輯日程':'新增日程';
   $('fTemple').innerHTML = data.temples.map(t=>`<option ${ev&&ev.temple===t?'selected':''}>${esc(t)}</option>`).join('');
@@ -385,10 +395,12 @@ function openEvForm(ev){
   $('fPlace').value = ev?ev.place:'';
   $('fLink').value = ev?ev.link:'';
   $('fNote').value = ev?ev.note:'';
-  show('evMask');
 }
-$('addEvBtn').onclick=()=>openEvForm(null);
-window.editEv = id=>{ const e=data.events.find(x=>x.id===id); if(e) openEvForm(e); };
+function resetEvForm(){ fillEvForm(null); }
+function gotoForm(){ $('adminPanel').scrollIntoView({behavior:'smooth'}); $('fName').focus({preventScroll:true}); }
+$('addEvBtn').onclick=()=>{ resetEvForm(); gotoForm(); };
+$('evCancel').onclick=()=>resetEvForm();
+window.editEv = id=>{ const e=data.events.find(x=>x.id===id); if(e){ fillEvForm(e); gotoForm(); } };
 window.delEv = async id=>{
   if(!confirm('確定要刪除這筆日程嗎？')) return;
   const j = await apiPost({action:'deleteEvent', id});
@@ -405,7 +417,7 @@ $('evSave').onclick=async()=>{
   const j = await apiPost(state.editingId ? Object.assign({action:'updateEvent',id:state.editingId},ev)
                                           : Object.assign({action:'addEvent'},ev));
   $('evSave').textContent='儲存';
-  if(j.ok){ hide('evMask'); toast('已儲存'); apiGet(); } else toast(j.error||'儲存失敗');
+  if(j.ok){ resetEvForm(); toast('已儲存'); apiGet(); } else toast(j.error||'儲存失敗');
 };
 
 /* ---------- 新增佛堂／類型 ---------- */
