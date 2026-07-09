@@ -16,9 +16,11 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding-bottom:40px}
+/* 背景水墨圖：iOS Safari 對 background-attachment:fixed 支援差，用 fixed div */
+.bgart{position:fixed;inset:0;z-index:-1;background:var(--bg) url('bg.jpg') center top/cover no-repeat}
 .wrap{max-width:640px;margin:0 auto;padding:0 14px}
 /* header */
-header{background:linear-gradient(180deg,#FFFDF8,var(--bg));border-bottom:1px solid var(--line);padding:18px 0 14px}
+header{border-bottom:1px solid var(--line);padding:18px 0 14px}
 .h-row{display:flex;align-items:center;justify-content:space-between}
 h1{font-family:'Noto Serif TC',serif;font-size:1.45rem;color:var(--brown);letter-spacing:.12em}
 h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;font-weight:600;margin-bottom:2px}
@@ -69,7 +71,6 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .ev-name{font-weight:500;flex:1}
 .ev-tags{display:flex;gap:6px;flex-shrink:0;align-items:center}
 .tag{font-size:.68rem;padding:2px 8px;border-radius:20px;color:#fff;white-space:nowrap}
-.tag.temple{background:transparent;color:var(--ink2);border:1px solid var(--line)}
 .ev-body{display:none;padding:0 14px 12px;border-top:1px dashed var(--line);font-size:.88rem;color:var(--ink)}
 .ev.open .ev-body{display:block}
 .ev-body .row{display:flex;gap:8px;margin-top:8px}
@@ -119,6 +120,7 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 </style>
 </head>
 <body>
+<div class="bgart"></div>
 
 <header>
   <div class="wrap h-row">
@@ -363,16 +365,17 @@ function renderCal(y,m){
   $('calGrid').querySelectorAll('.cell').forEach(c=>c.onclick=()=>{ state.selDate=c.dataset.d; renderCal(y,m); renderDay(); });
 }
 function evCard(e){
-  return `<div class="ev" style="border-left-color:${typeColor(e.type)}">
+  // 預設展開；點卡片可收合
+  return `<div class="ev open" style="border-left-color:${typeColor(e.type)}">
     <div class="ev-main" onclick="this.parentNode.classList.toggle('open')">
       <span class="ev-time">${esc(timeText(e))}</span>
       <span class="ev-name">${esc(e.name)}</span>
       <span class="ev-tags">
         ${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${esc(e.type)}</span>`:''}
-        <span class="tag temple">${esc(e.temple)}</span>
       </span>
     </div>
     <div class="ev-body">
+      <div class="row"><span class="lbl">所屬佛堂</span><span>${esc(e.temple)}</span></div>
       ${e.place?`<div class="row"><span class="lbl">地點</span><span>${esc(e.place)}</span></div>`:''}
       <div class="row"><span class="lbl">日期</span><span>${esc(dateText(e))} ${esc(timeText(e))}</span></div>
       ${e.note?`<div class="row"><span class="lbl">備註</span><span>${esc(e.note)}</span></div>`:''}
