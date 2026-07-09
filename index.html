@@ -11,6 +11,11 @@
 <meta property="og:type" content="website">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="佛堂行事曆">
+<meta name="theme-color" content="#FAF7F0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
@@ -62,6 +67,9 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .cell.dim{background:#FCFAF5}
 .cell.dim .dnum{color:#C9C2B4}
 .cell .dnum{font-size:.8rem;text-align:center;width:24px;height:24px;line-height:24px;margin:0 auto;border-radius:50%}
+.cell .lun{font-size:.56rem;color:#B3AA97;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden}
+.cell .lun.sp{color:var(--gold);font-weight:700}
+.cell.dim .lun{color:#D8D2C4}
 .cell.today .dnum{background:var(--gold);color:#fff;font-weight:700}
 .cell.sel{background:var(--today)}
 .dots{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-top:3px;min-height:8px}
@@ -70,6 +78,7 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 /* day detail & list */
 .day-title{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1rem;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
 .badge-today{background:var(--gold);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:20px;font-family:'Noto Sans TC';letter-spacing:.1em}
+.luntag{font-size:.72rem;color:var(--ink2);font-family:'Noto Sans TC';font-weight:400}
 .empty{color:var(--ink2);font-size:.9rem;text-align:center;padding:26px 0}
 /* event card */
 .ev{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;border-left:4px solid var(--gold)}
@@ -82,7 +91,10 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .ev.open .ev-body{display:block}
 .ev-body .row{display:flex;gap:8px;margin-top:8px}
 .ev-body .lbl{color:var(--gold);flex-shrink:0;font-weight:500}
-.ev-body a.linkbtn{display:inline-block;margin-top:10px;background:var(--gold);color:#fff;text-decoration:none;padding:8px 18px;border-radius:8px;font-size:.88rem}
+.ev-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ev-body a.linkbtn{display:inline-block;background:var(--gold);color:#fff;text-decoration:none;padding:8px 18px;border-radius:8px;font-size:.88rem}
+.copybtn{border:1px solid var(--gold);background:transparent;color:var(--gold);padding:8px 18px;border-radius:8px;font-size:.88rem;font-family:inherit;cursor:pointer}
+.week-hr{border:none;border-top:1px solid var(--line);margin:18px 0 4px}
 /* legend */
 .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:18px 0 10px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
 .legend .li{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--ink2)}
@@ -95,7 +107,6 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .notice{border:1px solid var(--gold-soft);border-left:3px solid var(--gold);background:#FFFDF8;color:var(--ink2);font-size:.85rem;padding:10px 14px;border-radius:8px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:16px 0}
 .panel h2{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px;letter-spacing:.08em}
-.mini{border:none;background:none;color:var(--gold);font-size:.78rem;font-family:inherit;cursor:pointer;padding:0;text-decoration:underline}
 /* admin event list */
 .arow{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:11px 14px;margin-bottom:10px;display:flex;gap:10px;align-items:center}
 .arow .info{flex:1;min-width:0}
@@ -105,11 +116,7 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .arow .btns{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .arow .btns .btn{padding:5px 12px;font-size:.82rem}
 .sec-title{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1rem;margin:20px 0 10px;letter-spacing:.08em}
-/* modal */
-.mask{position:fixed;inset:0;background:rgba(50,40,25,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
-.mask.on{display:flex}
-.modal{background:var(--card);width:100%;max-width:640px;border-radius:16px 16px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto}
-.modal h2{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px;letter-spacing:.08em}
+/* form */
 .f{margin-bottom:12px}
 .f label{display:block;font-size:.8rem;color:var(--ink2);margin-bottom:4px}
 .f label .req{color:#A03A2E}
@@ -117,7 +124,6 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 /* iOS 的日期/時間輸入框給固定高度並靠左，避免擠版 */
 .f input[type=date],.f input[type=time]{-webkit-appearance:none;appearance:none;min-height:46px;text-align:left}
 .f textarea{min-height:70px;resize:vertical}
-.f .lrow{display:flex;justify-content:space-between;align-items:baseline}
 .tseg{display:flex;width:100%}
 .tseg button{flex:1;padding:10px}
 .m-actions{display:flex;gap:10px;margin-top:16px}
@@ -150,6 +156,8 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
       <button id="viewList">列表</button>
     </div>
   </div>
+
+  <div id="weekAhead"></div>
 
   <div class="mnav">
     <div class="nav"><button id="prevM">‹</button></div>
@@ -218,8 +226,9 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
         <div style="flex:1;min-width:0"><label>結束時間</label><input type="time" id="fEnd"></div>
       </div>
       <div class="f">
-        <div class="lrow"><label>類型</label><button class="mini" id="addTypeBtn">＋新增類型</button></div>
+        <label>類型</label>
         <select id="fType"></select>
+        <input id="fTypeX" placeholder="輸入類型名稱（僅這筆日程使用）" style="display:none;margin-top:8px">
       </div>
       <div class="f">
         <label>地點</label>
@@ -238,18 +247,6 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
   </div>
 </div>
 
-<!-- 單欄輸入（新增佛堂／類型共用） -->
-<div class="mask" id="oneMask">
-  <div class="modal">
-    <h2 id="oneTitle"></h2>
-    <div class="f"><input id="oneInput" autocomplete="off"></div>
-    <div class="m-actions">
-      <button class="btn" onclick="hide('oneMask')">取消</button>
-      <button class="btn gold" id="oneGo">確定</button>
-    </div>
-  </div>
-</div>
-
 <div id="toast"></div>
 
 <script>
@@ -259,16 +256,14 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxcY5WoB279K2RMCQCtGIr_
 
 const DEFAULT_TEMPLES = ['誠鈺佛堂','善鈺佛堂','仁鈺佛堂','天心佛堂'];
 const DEFAULT_TYPES = [
-  {name:'新民班法會',   color:'#8C6A3F'},
-  {name:'辦事人員班法會', color:'#A6543C'},
-  {name:'壇主講師班法會', color:'#7A5C8E'},
-  {name:'道學研究班',   color:'#3F6E5C'},
-  {name:'讀經班',      color:'#4A6FA0'},
-  {name:'培訓班',      color:'#B08830'},
-  {name:'辦道',        color:'#9C3D3D'},
-  {name:'彈性活動',     color:'#77746A'},
-  {name:'獻供',        color:'#C08A2E'},
-  {name:'會議',        color:'#5B7A6A'},
+  {name:'法會',      color:'#8C6A3F'},
+  {name:'道學研究班', color:'#3F6E5C'},
+  {name:'讀經班',    color:'#4A6FA0'},
+  {name:'培訓班',    color:'#B08830'},
+  {name:'辦道',      color:'#9C3D3D'},
+  {name:'彈性活動',   color:'#77746A'},
+  {name:'獻供',      color:'#C08A2E'},
+  {name:'會議',      color:'#5B7A6A'},
 ];
 
 let data = {events:[], temples:DEFAULT_TEMPLES.slice(), types:DEFAULT_TYPES.slice()};
@@ -277,12 +272,28 @@ let admin = null; // {name, code}
 
 const $ = id => document.getElementById(id);
 function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function show(id){ $(id).classList.add('on'); }
-function hide(id){ $(id).classList.remove('on'); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2200); }
 function typeColor(name){ const t=data.types.find(x=>x.name===name); return t?t.color:'#77746A'; }
 function esc(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
 function timeText(e){ return e.start ? e.start+(e.end?'–'+e.end:'') : '全天'; }
+
+/* ---------- 農曆（用瀏覽器內建 Intl 中國曆，不用資料表） ---------- */
+let lunarFmt = null;
+try{
+  lunarFmt = new Intl.DateTimeFormat('zh-Hant-u-ca-chinese',{month:'long',day:'numeric'});
+  lunarFmt.formatToParts(new Date());
+}catch(e){ lunarFmt = null; } // 不支援就整個隱藏農曆
+const LDAY = ['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+  '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+  '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+// 回傳 {t:'廿六', sp:false}；初一顯示月名、初一/十五標金色
+function lunar(d){
+  if(!lunarFmt) return null;
+  const parts = lunarFmt.formatToParts(d);
+  const m = parts.find(p=>p.type==='month').value;
+  const dd = +parts.find(p=>p.type==='day').value;
+  return { t: dd===1 ? m : LDAY[dd], sp: dd===1 || dd===15 };
+}
 function dateText(e){ return e.endDate ? e.date+' ～ '+e.endDate : e.date; }
 // 把跨日日程展開到每一天（上限 60 天防呆）
 function expandByDate(evs){
@@ -332,11 +343,12 @@ function renderAll(){
   renderChips(); renderMonth(); renderLegend(); renderAdminList();
   if(admin){ // 資料更新後同步表單選項（保留目前選取）
     const t=$('fTemple').value, p=$('fPlace').value, y=$('fType').value;
-    $('fTemple').innerHTML = comboOpts(t==='__new__'?data.temples[0]:t, '＋新增佛堂（單次）');
-    $('fPlace').innerHTML = comboOpts(p==='__new__'?'':p, '＋新增地點（單次）', '未指定');
+    $('fTemple').innerHTML = comboOpts(data.temples, t==='__new__'?data.temples[0]:t, '＋新增佛堂（單次）');
+    $('fPlace').innerHTML = comboOpts(data.temples, p==='__new__'?'':p, '＋新增地點（單次）', '未指定');
+    $('fType').innerHTML = comboOpts(typeNames(), y==='__new__'?typeNames()[0]:y, '＋新增類型（單次）');
     if(t==='__new__') $('fTemple').value='__new__';
     if(p==='__new__') $('fPlace').value='__new__';
-    $('fType').innerHTML = data.types.map(x=>`<option ${x.name===y?'selected':''}>${esc(x.name)}</option>`).join('');
+    if(y==='__new__') $('fType').value='__new__';
   }
 }
 function renderChips(){
@@ -352,6 +364,7 @@ function renderLegend(){
 function renderMonth(){
   const y=state.month.getFullYear(), m=state.month.getMonth();
   $('mTitle').textContent = y+'年'+(m+1)+'月';
+  renderWeek();
   if(state.view==='cal'){ renderCal(y,m); renderDay(); } else renderList(y,m);
 }
 function renderCal(y,m){
@@ -365,15 +378,16 @@ function renderCal(y,m){
     const list = byDate[ds]||[];
     const dots = list.slice(0,4).map(e=>`<span class="dot" style="background:${typeColor(e.type)}"></span>`).join('')
       + (list.length>4?`<span class="more">+${list.length-4}</span>`:'');
+    const lu = lunar(d);
     html += `<div class="cell ${inM?'':'dim'} ${ds===todayS?'today':''} ${ds===state.selDate?'sel':''}" data-d="${ds}">
-      <div class="dnum">${d.getDate()}</div><div class="dots">${dots}</div></div>`;
+      <div class="dnum">${d.getDate()}</div>${lu?`<div class="lun ${lu.sp?'sp':''}">${lu.t}</div>`:''}<div class="dots">${dots}</div></div>`;
   }
   $('calGrid').innerHTML = html;
   $('calGrid').querySelectorAll('.cell').forEach(c=>c.onclick=()=>{ state.selDate=c.dataset.d; renderCal(y,m); renderDay(); });
 }
-function evCard(e){
-  // 預設展開；點卡片可收合
-  return `<div class="ev open" style="border-left-color:${typeColor(e.type)}">
+function evCard(e, open=true){
+  // 預設展開；點卡片可收合（近7日摘要區預設收合）
+  return `<div class="ev ${open?'open':''}" style="border-left-color:${typeColor(e.type)}">
     <div class="ev-main" onclick="this.parentNode.classList.toggle('open')">
       <span class="ev-time">${esc(timeText(e))}</span>
       <span class="ev-name">${esc(e.name)}</span>
@@ -386,15 +400,34 @@ function evCard(e){
       ${e.place?`<div class="row"><span class="lbl">地點</span><span>${esc(e.place)}</span></div>`:''}
       <div class="row"><span class="lbl">日期</span><span>${esc(dateText(e))} ${esc(timeText(e))}</span></div>
       ${e.note?`<div class="row"><span class="lbl">備註</span><span>${esc(e.note)}</span></div>`:''}
-      ${e.link?`<a class="linkbtn" href="${esc(e.link)}" target="_blank" rel="noopener">🔗 開啟連結</a>`:''}
+      <div class="ev-actions">
+        ${e.link?`<a class="linkbtn" href="${esc(e.link)}" target="_blank" rel="noopener">🔗 開啟連結</a>`:''}
+        <button class="copybtn" onclick="copyEv('${esc(e.id)}')">📋 複製文字</button>
+      </div>
     </div>
   </div>`;
+}
+// 近 7 日摘要（依目前佛堂篩選）
+function renderWeek(){
+  const byDate = expandByDate(eventsFiltered());
+  const wd=['日','一','二','三','四','五','六'];
+  const todayS = fmtDate(new Date());
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()+i);
+    const ds=fmtDate(d), list=byDate[ds]||[];
+    if(!list.length) continue;
+    html += `<div class="day-title">${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）${ds===todayS?'<span class="badge-today">今天</span>':''}</div>`
+      + list.map(e=>evCard(e,false)).join('');
+  }
+  $('weekAhead').innerHTML = html ? `<div class="sec-title" style="margin-top:6px">近 7 日日程</div>${html}<hr class="week-hr">` : '';
 }
 function renderDay(){
   const ds = state.selDate, todayS = fmtDate(new Date());
   const list = expandByDate(eventsFiltered())[ds]||[];
   const [y,m,d] = ds.split('-');
-  $('dayTitle').innerHTML = `${+m}月${+d}日 日程 ${ds===todayS?'<span class="badge-today">今天</span>':''}`;
+  const lu = lunar(new Date(ds+'T00:00:00'));
+  $('dayTitle').innerHTML = `${+m}月${+d}日 日程 ${lu?`<span class="luntag">農曆${lu.t.includes('月')?lu.t+'初一':lu.t}</span>`:''} ${ds===todayS?'<span class="badge-today">今天</span>':''}`;
   $('dayEvents').innerHTML = list.length ? list.map(evCard).join('') : '<div class="empty">這一天沒有安排日程</div>';
 }
 function renderList(y,m){
@@ -500,30 +533,32 @@ function setAllday(on){
 }
 $('tAllday').onclick=()=>setAllday(true);
 $('tTimed').onclick=()=>setAllday(false);
-// 佛堂／地點下拉：固定選項＋「＋新增（單次）」；單次輸入不入庫，只存在該筆日程
-function comboOpts(cur, newLabel, emptyLabel){
-  let opts = data.temples.slice();
+// 佛堂／地點／類型下拉：固定選項＋「＋新增（單次）」；單次輸入不入庫，只存在該筆日程
+function comboOpts(list, cur, newLabel, emptyLabel){
+  let opts = list.slice();
   if(cur && !opts.includes(cur)) opts.unshift(cur); // 單次輸入的既有值
   return (emptyLabel?`<option value="">${emptyLabel}</option>`:'') +
     opts.map(o=>`<option value="${esc(o)}" ${o===cur?'selected':''}>${esc(o)}</option>`).join('') +
     `<option value="__new__">${newLabel}</option>`;
 }
+function typeNames(){ return data.types.map(t=>t.name); }
 function syncCombo(selId, xId){
   $(xId).style.display = $(selId).value==='__new__' ? '' : 'none';
   if($(selId).value!=='__new__') $(xId).value='';
 }
 $('fTemple').onchange=()=>syncCombo('fTemple','fTempleX');
 $('fPlace').onchange=()=>syncCombo('fPlace','fPlaceX');
+$('fType').onchange=()=>syncCombo('fType','fTypeX');
 function comboValue(selId, xId){
   return $(selId).value==='__new__' ? $(xId).value.trim() : $(selId).value;
 }
 function fillEvForm(ev){
   state.editingId = ev?ev.id:null;
   $('evFormTitle').textContent = ev?'編輯日程':'新增日程';
-  $('fTemple').innerHTML = comboOpts(ev?ev.temple:data.temples[0], '＋新增佛堂（單次）');
-  $('fPlace').innerHTML = comboOpts(ev?ev.place:'', '＋新增地點（單次）', '未指定');
-  syncCombo('fTemple','fTempleX'); syncCombo('fPlace','fPlaceX');
-  $('fType').innerHTML = data.types.map(t=>`<option ${ev&&ev.type===t.name?'selected':''}>${esc(t.name)}</option>`).join('');
+  $('fTemple').innerHTML = comboOpts(data.temples, ev?ev.temple:data.temples[0], '＋新增佛堂（單次）');
+  $('fPlace').innerHTML = comboOpts(data.temples, ev?ev.place:'', '＋新增地點（單次）', '未指定');
+  $('fType').innerHTML = comboOpts(typeNames(), ev?ev.type:typeNames()[0], '＋新增類型（單次）');
+  syncCombo('fTemple','fTempleX'); syncCombo('fPlace','fPlaceX'); syncCombo('fType','fTypeX');
   $('fName').value = ev?ev.name:'';
   $('fDate').value = ev?ev.date:fmtDate(new Date());
   $('fEndDate').value = ev&&ev.endDate?ev.endDate:'';
@@ -542,6 +577,28 @@ function closeEvForm(){ $('adminPanel').style.display='none'; state.editingId=nu
 $('addEvBtn').onclick=()=>openEvForm(null);
 $('evCancel').onclick=closeEvForm;
 window.editEv = id=>{ const e=data.events.find(x=>x.id===id); if(e) openEvForm(e); };
+// 複製日程文字（貼 LINE 群組用）
+window.copyEv = async id=>{
+  const e = data.events.find(x=>x.id===id); if(!e) return;
+  const wd=['日','一','二','三','四','五','六'];
+  const d = new Date(e.date+'T00:00:00');
+  const lines = [
+    `【${e.type||'日程'}】${e.name}`,
+    `日期：${e.date}（${wd[d.getDay()]}）${e.endDate?'～'+e.endDate:''}`,
+    `時間：${timeText(e)}`,
+    `佛堂：${e.temple}`,
+  ];
+  if(e.place) lines.push(`地點：${e.place}`);
+  if(e.note) lines.push(`備註：${e.note}`);
+  if(e.link) lines.push(`連結：${e.link}`);
+  const txt = lines.join('\n');
+  try{ await navigator.clipboard.writeText(txt); }
+  catch(err){ // 舊瀏覽器 fallback
+    const ta=document.createElement('textarea'); ta.value=txt;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  toast('已複製，可直接貼到 LINE');
+};
 window.delEv = async id=>{
   if(!confirm('確定要刪除這筆日程嗎？')) return;
   const j = await apiPost({action:'deleteEvent', id});
@@ -553,7 +610,7 @@ $('evSave').onclick=async()=>{
     temple:comboValue('fTemple','fTempleX'), name:$('fName').value.trim(), date:$('fDate').value,
     endDate:$('fEndDate').value,
     start:allday?'':$('fStart').value, end:allday?'':$('fEnd').value,
-    type:$('fType').value, place:comboValue('fPlace','fPlaceX'), link:$('fLink').value.trim(), note:$('fNote').value.trim(),
+    type:comboValue('fType','fTypeX'), place:comboValue('fPlace','fPlaceX'), link:$('fLink').value.trim(), note:$('fNote').value.trim(),
   };
   if(!ev.temple||!ev.name||!ev.date) return toast('佛堂、名稱、日期為必填');
   if(ev.endDate && ev.endDate<ev.date) return toast('結束日期不可早於日期');
@@ -564,21 +621,6 @@ $('evSave').onclick=async()=>{
   $('evSave').textContent='儲存';
   if(j.ok){ closeEvForm(); toast('已儲存'); apiGet(); } else toast(j.error||'儲存失敗');
 };
-
-/* ---------- 新增佛堂／類型 ---------- */
-function openOne(title, placeholder, action, selId){
-  $('oneTitle').textContent=title;
-  $('oneInput').value=''; $('oneInput').placeholder=placeholder;
-  $('oneGo').onclick=async()=>{
-    const name=$('oneInput').value.trim();
-    if(!name) return;
-    const j = await apiPost({action, name});
-    if(j.ok){ hide('oneMask'); toast('已新增'); await apiGet(); if(selId) $(selId).value=name; }
-    else toast(j.error||'新增失敗');
-  };
-  show('oneMask'); $('oneInput').focus();
-}
-$('addTypeBtn').onclick=()=>openOne('新增活動類型','輸入類型名稱','addType','fType');
 
 /* ---------- 啟動 ---------- */
 (function init(){

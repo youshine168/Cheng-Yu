@@ -1,0 +1,11 @@
+{
+  "name": "發一天元・曹老道場・佛堂行事曆",
+  "short_name": "佛堂行事曆",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FAF7F0",
+  "theme_color": "#FAF7F0",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
