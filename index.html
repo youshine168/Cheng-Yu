@@ -217,6 +217,17 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
       <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
       <div class="f"><label>日期 <span class="req">＊</span></label><input type="date" id="fDate"></div>
       <div class="f"><label>結束日期（跨日才填，單日免填）</label><input type="date" id="fEndDate"></div>
+      <div class="f" id="repeatRow" style="display:flex;gap:14px">
+        <div style="flex:1;min-width:0"><label>重複</label>
+          <select id="fRepeat">
+            <option value="">不重複</option>
+            <option value="7">每週</option>
+            <option value="14">每兩週</option>
+            <option value="m">每月</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:0"><label>重複到（含當天）</label><input type="date" id="fRepeatEnd" disabled></div>
+      </div>
       <div class="f">
         <label>時間</label>
         <div class="seg tseg"><button type="button" id="tTimed" class="on">指定時間</button><button type="button" id="tAllday">全天</button></div>
@@ -266,7 +277,7 @@ const DEFAULT_TYPES = [
   {name:'會議',      color:'#5B7A6A'},
 ];
 
-let data = {events:[], temples:DEFAULT_TEMPLES.slice(), types:DEFAULT_TYPES.slice()};
+let data = {events:[], temples:DEFAULT_TEMPLES.slice(), types:DEFAULT_TYPES.slice(), fixed:[]};
 let state = {view:'cal', temple:'全部', month:new Date(), selDate:fmtDate(new Date()), editingId:null};
 let admin = null; // {name, code}
 
@@ -286,13 +297,52 @@ try{
 const LDAY = ['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
   '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
   '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
-// 回傳 {t:'廿六', sp:false}；初一顯示月名、初一/十五標金色
+// 回傳 {t:'廿六', sp:false, key:'六月26'}；初一顯示月名、初一/十五標金色
 function lunar(d){
   if(!lunarFmt) return null;
   const parts = lunarFmt.formatToParts(d);
   const m = parts.find(p=>p.type==='month').value;
   const dd = +parts.find(p=>p.type==='day').value;
-  return { t: dd===1 ? m : LDAY[dd], sp: dd===1 || dd===15 };
+  return { t: dd===1 ? m : LDAY[dd], sp: dd===1 || dd===15, key: m+dd, full: m+LDAY[dd] };
+}
+
+/* ---------- 農曆固定日程（初一十五獻供、聖誕成道日，存在試算表「農曆固定」） ---------- */
+// 瀏覽器農曆引擎把十一月叫「冬月」、十二月叫「臘月」，這裡對應回來
+const LMONTH_MAP = {'十一月':'冬月','十二月':'臘月','閏十一月':'閏冬月','閏十二月':'閏臘月'};
+// '十二月二十九日' → '臘月29'
+function lunarKeyFromText(t){
+  t = String(t||'').trim().replace(/日$/,'');
+  const i = t.indexOf('月');
+  if(i<0) return null;
+  const mon = LMONTH_MAP[t.slice(0,i+1)] || t.slice(0,i+1);
+  const dayT = t.slice(i+1);
+  let d = LDAY.indexOf(dayT);
+  if(d<1) d = LDAY.indexOf(dayT.replace(/^二十(.+)/,'廿$1')); // 二十九 → 廿九
+  if(d<1) return null;
+  return mon+d;
+}
+let fixedMap = {};
+function buildFixedMap(){
+  fixedMap = {};
+  (data.fixed||[]).forEach(f=>{
+    const k = lunarKeyFromText(f.lunar);
+    if(k) fixedMap[k] = f.name;
+  });
+}
+// 這一天有沒有農曆固定日程，有就生一筆虛擬日程（不能編輯，管理要改試算表「農曆固定」）
+function fixedFor(d){
+  const lu = lunar(d);
+  if(!lu || !fixedMap[lu.key]) return null;
+  const ds = fmtDate(d);
+  return { id:'fx-'+ds, temple:'各佛堂', name:fixedMap[lu.key], date:ds, endDate:'',
+           start:'', end:'', type:'獻供', place:'', link:'', note:'農曆'+lu.full+'固定日程' };
+}
+// 某一天的全部日程 = 一般日程 + 農曆固定
+function dayList(byDate, d){
+  const list = (byDate[fmtDate(d)]||[]).slice();
+  const f = fixedFor(d);
+  if(f) list.unshift(f);
+  return list;
 }
 function dateText(e){ return e.endDate ? e.date+' ～ '+e.endDate : e.date; }
 // 把跨日日程展開到每一天（上限 60 天防呆）
@@ -319,7 +369,7 @@ async function apiGet(){
     const r = await fetch(API_URL+'?action=all');
     const j = await r.json();
     if(j.ok){
-      data = {events:j.events, temples:j.temples, types:j.types};
+      data = {events:j.events, temples:j.temples, types:j.types, fixed:j.fixed||[]};
       localStorage.setItem('ft_cache_v1', JSON.stringify(data));
       renderAll();
     }
@@ -340,6 +390,7 @@ function eventsFiltered(){
   return evs.slice().sort((a,b)=> a.date===b.date ? (a.start||'').localeCompare(b.start||'') : a.date.localeCompare(b.date));
 }
 function renderAll(){
+  buildFixedMap();
   renderChips(); renderMonth(); renderLegend(); renderAdminList();
   if(admin){ // 資料更新後同步表單選項（保留目前選取）
     const t=$('fTemple').value, p=$('fPlace').value, y=$('fType').value;
@@ -375,7 +426,7 @@ function renderCal(y,m){
   for(let i=0;i<42;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const ds = fmtDate(d), inM = d.getMonth()===m;
-    const list = byDate[ds]||[];
+    const list = dayList(byDate, d);
     const dots = list.slice(0,4).map(e=>`<span class="dot" style="background:${typeColor(e.type)}"></span>`).join('')
       + (list.length>4?`<span class="more">+${list.length-4}</span>`:'');
     const lu = lunar(d);
@@ -415,7 +466,7 @@ function renderWeek(){
   let html='';
   for(let i=0;i<7;i++){
     const d=new Date(); d.setDate(d.getDate()+i);
-    const ds=fmtDate(d), list=byDate[ds]||[];
+    const ds=fmtDate(d), list=dayList(byDate,d);
     if(!list.length) continue;
     html += `<div class="day-title">${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）${ds===todayS?'<span class="badge-today">今天</span>':''}</div>`
       + list.map(evCard).join('');
@@ -424,25 +475,26 @@ function renderWeek(){
 }
 function renderDay(){
   const ds = state.selDate, todayS = fmtDate(new Date());
-  const list = expandByDate(eventsFiltered())[ds]||[];
+  const list = dayList(expandByDate(eventsFiltered()), new Date(ds+'T00:00:00'));
   const [y,m,d] = ds.split('-');
   const lu = lunar(new Date(ds+'T00:00:00'));
   $('dayTitle').innerHTML = `${+m}月${+d}日 日程 ${lu?`<span class="luntag">農曆${lu.t.includes('月')?lu.t+'初一':lu.t}</span>`:''} ${ds===todayS?'<span class="badge-today">今天</span>':''}`;
   $('dayEvents').innerHTML = list.length ? list.map(evCard).join('') : '<div class="empty">這一天沒有安排日程</div>';
 }
 function renderList(y,m){
-  const mm = String(m+1).padStart(2,'0');
-  const all = expandByDate(eventsFiltered());
-  const byDate = {};
-  Object.keys(all).forEach(ds=>{ if(ds.startsWith(y+'-'+mm)) byDate[ds]=all[ds]; });
+  const byDate = expandByDate(eventsFiltered());
   const todayS = fmtDate(new Date());
-  if(!Object.keys(byDate).length){ $('listView').innerHTML='<div class="empty">本月尚無日程</div>'; return; }
   const wd=['日','一','二','三','四','五','六'];
-  $('listView').innerHTML = Object.keys(byDate).sort().map(ds=>{
-    const d = new Date(ds+'T00:00:00');
-    return `<div class="day-title">${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）${ds===todayS?'<span class="badge-today">今天</span>':''}</div>`
-      + byDate[ds].map(evCard).join('');
-  }).join('');
+  const lastDay = new Date(y,m+1,0).getDate();
+  let html='';
+  for(let dd=1; dd<=lastDay; dd++){
+    const d = new Date(y,m,dd), ds = fmtDate(d);
+    const list = dayList(byDate, d);
+    if(!list.length) continue;
+    html += `<div class="day-title">${m+1}月${dd}日（${wd[d.getDay()]}）${ds===todayS?'<span class="badge-today">今天</span>':''}</div>`
+      + list.map(evCard).join('');
+  }
+  $('listView').innerHTML = html || '<div class="empty">本月尚無日程</div>';
 }
 
 /* ---------- 檢視切換 ---------- */
@@ -533,6 +585,27 @@ function setAllday(on){
 }
 $('tAllday').onclick=()=>setAllday(true);
 $('tTimed').onclick=()=>setAllday(false);
+$('fRepeat').onchange=()=>{ const on=!!$('fRepeat').value; $('fRepeatEnd').disabled=!on; if(!on) $('fRepeatEnd').value=''; };
+// 依重複設定展開成多筆（上限 60 筆；每月遇到沒有那天的月份自動跳過，例如 31 號）
+function occurrences(ev, mode, until){
+  const out=[];
+  const start=new Date(ev.date+'T00:00:00');
+  const span = ev.endDate ? Math.round((new Date(ev.endDate+'T00:00:00')-start)/86400000) : 0;
+  for(let k=0; k<720 && out.length<60; k++){
+    let d;
+    if(mode==='m'){
+      d=new Date(start.getFullYear(), start.getMonth()+k, start.getDate());
+      if(d.getDate()!==start.getDate()) continue;
+    }else{
+      d=new Date(start.getFullYear(), start.getMonth(), start.getDate()+k*(+mode));
+    }
+    const ds=fmtDate(d);
+    if(ds>until) break;
+    out.push(Object.assign({}, ev, {date:ds,
+      endDate: span ? fmtDate(new Date(d.getFullYear(), d.getMonth(), d.getDate()+span)) : ''}));
+  }
+  return out;
+}
 // 佛堂／地點／類型下拉：固定選項＋「＋新增（單次）」；單次輸入不入庫，只存在該筆日程
 function comboOpts(list, cur, newLabel, emptyLabel){
   let opts = list.slice();
@@ -567,6 +640,9 @@ function fillEvForm(ev){
   setAllday(ev ? !ev.start : false);
   $('fLink').value = ev?ev.link:'';
   $('fNote').value = ev?ev.note:'';
+  // 重複選項只在「新增」時出現；編輯單筆不重複
+  $('repeatRow').style.display = ev?'none':'flex';
+  $('fRepeat').value=''; $('fRepeatEnd').value=''; $('fRepeatEnd').disabled=true;
 }
 function openEvForm(ev){
   fillEvForm(ev);
@@ -579,7 +655,9 @@ $('evCancel').onclick=closeEvForm;
 window.editEv = id=>{ const e=data.events.find(x=>x.id===id); if(e) openEvForm(e); };
 // 複製日程文字（貼 LINE 群組用）
 window.copyEv = async id=>{
-  const e = data.events.find(x=>x.id===id); if(!e) return;
+  let e = data.events.find(x=>x.id===id);
+  if(!e && id.startsWith('fx-')) e = fixedFor(new Date(id.slice(3)+'T00:00:00')); // 農曆固定日程
+  if(!e) return;
   const wd=['日','一','二','三','四','五','六'];
   const d = new Date(e.date+'T00:00:00');
   const lines = [
@@ -615,11 +693,23 @@ $('evSave').onclick=async()=>{
   if(!ev.temple||!ev.name||!ev.date) return toast('佛堂、名稱、日期為必填');
   if(ev.endDate && ev.endDate<ev.date) return toast('結束日期不可早於日期');
   if(ev.endDate===ev.date) ev.endDate='';
+  // 重複性日程：展開成多筆一次送出
+  const repeat=$('fRepeat').value, repeatEnd=$('fRepeatEnd').value;
+  let body;
+  if(!state.editingId && repeat){
+    if(!repeatEnd || repeatEnd<ev.date) return toast('請選「重複到」的日期');
+    const occ = occurrences(ev, repeat, repeatEnd);
+    if(!occ.length) return toast('重複範圍內沒有任何場次');
+    body = {action:'addEvents', events:occ};
+  }else{
+    body = state.editingId ? Object.assign({action:'updateEvent',id:state.editingId},ev)
+                           : Object.assign({action:'addEvent'},ev);
+  }
   $('evSave').textContent='儲存中…';
-  const j = await apiPost(state.editingId ? Object.assign({action:'updateEvent',id:state.editingId},ev)
-                                          : Object.assign({action:'addEvent'},ev));
+  const j = await apiPost(body);
   $('evSave').textContent='儲存';
-  if(j.ok){ closeEvForm(); toast('已儲存'); apiGet(); } else toast(j.error||'儲存失敗');
+  if(j.ok){ closeEvForm(); toast(j.count?('已建立 '+j.count+' 筆日程'):'已儲存'); apiGet(); }
+  else toast(j.error||'儲存失敗');
 };
 
 /* ---------- 啟動 ---------- */
