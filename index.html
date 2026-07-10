@@ -385,9 +385,9 @@ function renderCal(y,m){
   $('calGrid').innerHTML = html;
   $('calGrid').querySelectorAll('.cell').forEach(c=>c.onclick=()=>{ state.selDate=c.dataset.d; renderCal(y,m); renderDay(); });
 }
-function evCard(e, open=true){
-  // 預設展開；點卡片可收合（近7日摘要區預設收合）
-  return `<div class="ev ${open?'open':''}" style="border-left-color:${typeColor(e.type)}">
+function evCard(e){
+  // 一律預設展開；點卡片可收合
+  return `<div class="ev open" style="border-left-color:${typeColor(e.type)}">
     <div class="ev-main" onclick="this.parentNode.classList.toggle('open')">
       <span class="ev-time">${esc(timeText(e))}</span>
       <span class="ev-name">${esc(e.name)}</span>
@@ -418,7 +418,7 @@ function renderWeek(){
     const ds=fmtDate(d), list=byDate[ds]||[];
     if(!list.length) continue;
     html += `<div class="day-title">${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）${ds===todayS?'<span class="badge-today">今天</span>':''}</div>`
-      + list.map(e=>evCard(e,false)).join('');
+      + list.map(evCard).join('');
   }
   $('weekAhead').innerHTML = html ? `<div class="sec-title" style="margin-top:6px">近 7 日日程</div>${html}<hr class="week-hr">` : '';
 }
