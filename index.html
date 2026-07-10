@@ -62,7 +62,7 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .cal-head{display:grid;grid-template-columns:repeat(7,1fr);background:#F5EFE2;border-bottom:1px solid var(--line)}
 .cal-head div{text-align:center;font-size:.75rem;color:var(--brown);padding:7px 0;letter-spacing:.1em}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.cell{min-height:58px;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:5px 3px 3px;cursor:pointer;position:relative}
+.cell{min-height:58px;min-width:0;overflow:hidden;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:5px 3px 3px;cursor:pointer;position:relative}
 .cell:nth-child(7n){border-right:none}
 .cell.dim{background:#FCFAF5}
 .cell.dim .dnum{color:#C9C2B4}
@@ -72,9 +72,11 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .cell.dim .lun{color:#D8D2C4}
 .cell.today .dnum{background:var(--gold);color:#fff;font-weight:700}
 .cell.sel{background:var(--today)}
-.dots{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-top:3px;min-height:8px}
 .dot{width:6px;height:6px;border-radius:50%}
-.more{font-size:.6rem;color:var(--ink2);line-height:6px}
+/* 月曆格內迷你文字條（方案A）；辦道🪷、法會🚢 */
+.bars{margin-top:3px;min-height:8px}
+.bar{display:block;font-size:.6rem;color:#fff;border-radius:3px;padding:1px 3px;margin:2px 1px 0;white-space:nowrap;overflow:hidden;text-align:center}
+.more{display:block;font-size:.6rem;color:var(--ink2);text-align:center;margin-top:1px}
 /* day detail & list */
 .day-title{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1rem;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
 .badge-today{background:var(--gold);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:20px;font-family:'Noto Sans TC';letter-spacing:.1em}
@@ -117,6 +119,9 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
 .arow .btns .btn{padding:5px 12px;font-size:.82rem}
 .sec-title{font-family:'Noto Serif TC',serif;color:var(--brown);font-size:1rem;margin:20px 0 10px;letter-spacing:.08em}
 /* form */
+.pickrow{display:flex;flex-wrap:wrap;gap:8px}
+.pick{border:1px solid var(--line);background:#FFFDF8;border-radius:20px;padding:7px 14px;font-size:.88rem;color:var(--ink2);cursor:pointer;font-family:inherit}
+.pick.on{background:var(--gold);border-color:var(--gold);color:#fff}
 .f{margin-bottom:12px}
 .f label{display:block;font-size:.8rem;color:var(--ink2);margin-bottom:4px}
 .f label .req{color:#A03A2E}
@@ -210,8 +215,8 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
     <section class="panel" id="adminPanel" style="display:none;margin-top:0">
       <h2 id="evFormTitle">新增日程</h2>
       <div class="f">
-        <label>所屬佛堂 <span class="req">＊</span></label>
-        <select id="fTemple"></select>
+        <label>所屬佛堂 <span class="req">＊</span>（可複選）</label>
+        <div class="pickrow" id="fTempleChips"></div>
         <input id="fTempleX" placeholder="輸入佛堂名稱（僅這筆日程使用）" style="display:none;margin-top:8px">
       </div>
       <div class="f"><label>日程名稱 <span class="req">＊</span></label><input id="fName"></div>
@@ -290,6 +295,7 @@ const $ = id => document.getElementById(id);
 function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2200); }
 function typeColor(name){ const t=data.types.find(x=>x.name===name); return t?t.color:'#77746A'; }
+const TYPE_EMOJI = {'辦道':'🪷','法會':'🚢'};
 function esc(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
 function timeText(e){ return e.start ? e.start+(e.end?'–'+e.end:'') : '全天'; }
 
@@ -406,18 +412,18 @@ async function apiPost(body){
 /* ---------- 渲染 ---------- */
 function eventsFiltered(){
   let evs = data.events;
-  if(state.temple!=='全部') evs = evs.filter(e=>e.temple===state.temple);
+  // 佛堂可複選（以「、」串起），篩選時拆開比對
+  if(state.temple!=='全部') evs = evs.filter(e=>String(e.temple).split(/[、,]/).includes(state.temple));
   return evs.slice().sort((a,b)=> a.date===b.date ? (a.start||'').localeCompare(b.start||'') : a.date.localeCompare(b.date));
 }
 function renderAll(){
   buildFixedMap();
   renderChips(); renderMonth(); renderLegend(); renderAdminList();
   if(admin){ // 資料更新後同步表單選項（保留目前選取）
-    const t=$('fTemple').value, p=$('fPlace').value, y=$('fType').value;
-    $('fTemple').innerHTML = comboOpts(data.temples, t==='__new__'?data.temples[0]:t, '＋新增佛堂（單次）');
+    const p=$('fPlace').value, y=$('fType').value;
+    renderTempleChips();
     $('fPlace').innerHTML = comboOpts(data.temples, p==='__new__'?'':p, '＋新增地點（單次）', '未指定');
     $('fType').innerHTML = comboOpts(typeNames(), y==='__new__'?typeNames()[0]:y, '＋新增類型（單次）');
-    if(t==='__new__') $('fTemple').value='__new__';
     if(p==='__new__') $('fPlace').value='__new__';
     if(y==='__new__') $('fType').value='__new__';
   }
@@ -430,7 +436,7 @@ function renderChips(){
 }
 function renderLegend(){
   $('legend').innerHTML = data.types.map(t=>
-    `<span class="li"><span class="dot" style="background:${t.color}"></span>${esc(t.name)}</span>`).join('');
+    `<span class="li"><span class="dot" style="background:${t.color}"></span>${TYPE_EMOJI[t.name]||''}${esc(t.name)}</span>`).join('');
 }
 function renderMonth(){
   const y=state.month.getFullYear(), m=state.month.getMonth();
@@ -447,11 +453,12 @@ function renderCal(y,m){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const ds = fmtDate(d), inM = d.getMonth()===m;
     const list = dayList(byDate, d);
-    const dots = list.slice(0,4).map(e=>`<span class="dot" style="background:${typeColor(e.type)}"></span>`).join('')
-      + (list.length>4?`<span class="more">+${list.length-4}</span>`:'');
+    const bars = list.slice(0,3).map(e=>
+      `<span class="bar" style="background:${typeColor(e.type)}">${TYPE_EMOJI[e.type]||''}${esc(e.name)}</span>`).join('')
+      + (list.length>3?`<span class="more">+${list.length-3}</span>`:'');
     const lu = lunar(d);
     html += `<div class="cell ${inM?'':'dim'} ${ds===todayS?'today':''} ${ds===state.selDate?'sel':''}" data-d="${ds}">
-      <div class="dnum">${d.getDate()}</div>${lu?`<div class="lun ${lu.sp?'sp':''}">${lu.t}</div>`:''}<div class="dots">${dots}</div></div>`;
+      <div class="dnum">${d.getDate()}</div>${lu?`<div class="lun ${lu.sp?'sp':''}">${lu.t}</div>`:''}<div class="bars">${bars}</div></div>`;
   }
   $('calGrid').innerHTML = html;
   $('calGrid').querySelectorAll('.cell').forEach(c=>c.onclick=()=>{ state.selDate=c.dataset.d; renderCal(y,m); renderDay(); });
@@ -463,7 +470,7 @@ function evCard(e){
       <span class="ev-time">${esc(timeText(e))}</span>
       <span class="ev-name">${esc(e.name)}</span>
       <span class="ev-tags">
-        ${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${esc(e.type)}</span>`:''}
+        ${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${TYPE_EMOJI[e.type]||''}${esc(e.type)}</span>`:''}
       </span>
     </div>
     <div class="ev-body">
@@ -577,7 +584,7 @@ function arow(e, fx){
   return `<div class="arow" style="border-left-color:${typeColor(e.type)}">
     <div class="info">
       <div class="adate">${esc(dateText(e))}　${esc(timeText(e))}</div>
-      <div class="aname">${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${esc(e.type)}</span>`:''}${esc(e.name)}</div>
+      <div class="aname">${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${TYPE_EMOJI[e.type]||''}${esc(e.type)}</span>`:''}${esc(e.name)}</div>
       <div class="asub">${esc(e.temple)}${e.place?'｜'+esc(e.place):''}</div>
     </div>
     <div class="btns">${btns}</div>
@@ -652,19 +659,40 @@ function syncCombo(selId, xId){
   $(xId).style.display = $(selId).value==='__new__' ? '' : 'none';
   if($(selId).value!=='__new__') $(xId).value='';
 }
-$('fTemple').onchange=()=>syncCombo('fTemple','fTempleX');
 $('fPlace').onchange=()=>syncCombo('fPlace','fPlaceX');
 $('fType').onchange=()=>syncCombo('fType','fTypeX');
+// 所屬佛堂複選（chips 切換；＋自行輸入＝單次佛堂）
+let formTemples = new Set(), tOneOff = false;
+function renderTempleChips(){
+  const names = [...data.temples];
+  formTemples.forEach(t=>{ if(!names.includes(t)) names.push(t); }); // 編輯舊資料的家壇也顯示成 chip
+  $('fTempleChips').innerHTML = names.map(t=>
+    `<button type="button" class="pick ${formTemples.has(t)?'on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')
+    + `<button type="button" class="pick ${tOneOff?'on':''}" id="tOneBtn">＋自行輸入</button>`;
+  $('fTempleChips').querySelectorAll('.pick[data-t]').forEach(c=>c.onclick=()=>{
+    const t=c.dataset.t;
+    formTemples.has(t) ? formTemples.delete(t) : formTemples.add(t);
+    renderTempleChips();
+  });
+  $('tOneBtn').onclick=()=>{
+    tOneOff=!tOneOff;
+    $('fTempleX').style.display = tOneOff?'':'none';
+    if(!tOneOff) $('fTempleX').value='';
+    renderTempleChips();
+  };
+}
 function comboValue(selId, xId){
   return $(selId).value==='__new__' ? $(xId).value.trim() : $(selId).value;
 }
 function fillEvForm(ev){
   state.editingId = ev?ev.id:null;
   $('evFormTitle').textContent = ev?'編輯日程':'新增日程';
-  $('fTemple').innerHTML = comboOpts(data.temples, ev?ev.temple:data.temples[0], '＋新增佛堂（單次）');
+  formTemples = new Set(ev ? String(ev.temple).split(/[、,]/).filter(Boolean) : [data.temples[0]]);
+  tOneOff = false; $('fTempleX').value=''; $('fTempleX').style.display='none';
+  renderTempleChips();
   $('fPlace').innerHTML = comboOpts(data.temples, ev?ev.place:'', '＋新增地點（單次）', '未指定');
   $('fType').innerHTML = comboOpts(typeNames(), ev?ev.type:typeNames()[0], '＋新增類型（單次）');
-  syncCombo('fTemple','fTempleX'); syncCombo('fPlace','fPlaceX'); syncCombo('fType','fTypeX');
+  syncCombo('fPlace','fPlaceX'); syncCombo('fType','fTypeX');
   $('fName').value = ev?ev.name:'';
   $('fDate').value = ev?ev.date:fmtDate(new Date());
   $('fEndDate').value = ev&&ev.endDate?ev.endDate:'';
@@ -717,8 +745,10 @@ window.delEv = async id=>{
 };
 $('evSave').onclick=async()=>{
   const allday = $('tAllday').classList.contains('on');
+  const temples = [...formTemples];
+  if(tOneOff && $('fTempleX').value.trim()) temples.push($('fTempleX').value.trim());
   const ev = {
-    temple:comboValue('fTemple','fTempleX'), name:$('fName').value.trim(), date:$('fDate').value,
+    temple:temples.join('、'), name:$('fName').value.trim(), date:$('fDate').value,
     endDate:$('fEndDate').value,
     start:allday?'':$('fStart').value, end:allday?'':$('fEnd').value,
     type:comboValue('fType','fTypeX'), place:comboValue('fPlace','fPlaceX'), link:$('fLink').value.trim(), note:$('fNote').value.trim(),
