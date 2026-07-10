@@ -254,6 +254,11 @@ h1 small{display:block;font-size:.72rem;color:var(--gold);letter-spacing:.28em;f
       </div>
     </section>
 
+    <div class="mnav" style="margin-top:22px">
+      <div class="nav"><button id="aPrev">‹</button></div>
+      <div class="title" id="aTitle"></div>
+      <div class="nav"><button id="aNext">›</button><button class="today-btn" id="aToday">本月</button></div>
+    </div>
     <div id="adminList"></div>
   </div>
 </div>
@@ -278,7 +283,7 @@ const DEFAULT_TYPES = [
 ];
 
 let data = {events:[], temples:DEFAULT_TEMPLES.slice(), types:DEFAULT_TYPES.slice(), fixed:[]};
-let state = {view:'cal', temple:'全部', month:new Date(), selDate:fmtDate(new Date()), editingId:null};
+let state = {view:'cal', temple:'全部', month:new Date(), adminMonth:new Date(), selDate:fmtDate(new Date()), editingId:null};
 let admin = null; // {name, code}
 
 const $ = id => document.getElementById(id);
@@ -338,8 +343,11 @@ function fixedFor(d){
   const next = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1);
   const lu = lunar(next);
   if(!lu) return null;
-  const mk = name => ({ id:'fx-'+fmtDate(d), temple:'各佛堂', name:name+'獻供', date:fmtDate(d),
-    endDate:'', start:'', end:'', type:'獻供', place:'', link:'', note:'' });
+  const ds = fmtDate(d);
+  // 管理員把獻供「編輯存檔」後會變成真實日程；同日同名的真實日程存在時，自動產生的這筆就讓位
+  const mk = name => data.events.some(ev=>ev.date===ds && ev.name===name+'獻供') ? null :
+    { id:'fx-'+ds, temple:'各佛堂', name:name+'獻供', date:ds,
+      endDate:'', start:'', end:'', type:'獻供', place:'', link:'', note:'' };
   if(lu.key==='正月1'){ // 今天是除夕
     const cx = fixedMap['臘月29'] || fixedMap['臘月30'];
     if(cx && cx.includes('除夕')) return mk(cx);
@@ -560,32 +568,45 @@ $('loginGo').onclick=async()=>{
   $('loginGo').textContent='登入';
 };
 
-/* ---------- 管理日程清單 ---------- */
-function arow(e){
+/* ---------- 管理日程清單（按月顯示，含農曆獻供） ---------- */
+function arow(e, fx){
+  const btns = fx
+    ? `<button class="btn" onclick="editFx('${e.date}')">編輯</button>`
+    : `<button class="btn" onclick="editEv('${esc(e.id)}')">編輯</button>
+       <button class="btn danger" onclick="delEv('${esc(e.id)}')">刪除</button>`;
   return `<div class="arow" style="border-left-color:${typeColor(e.type)}">
     <div class="info">
       <div class="adate">${esc(dateText(e))}　${esc(timeText(e))}</div>
       <div class="aname">${e.type?`<span class="tag" style="background:${typeColor(e.type)}">${esc(e.type)}</span>`:''}${esc(e.name)}</div>
       <div class="asub">${esc(e.temple)}${e.place?'｜'+esc(e.place):''}</div>
     </div>
-    <div class="btns">
-      <button class="btn" onclick="editEv('${esc(e.id)}')">編輯</button>
-      <button class="btn danger" onclick="delEv('${esc(e.id)}')">刪除</button>
-    </div>
+    <div class="btns">${btns}</div>
   </div>`;
 }
 function renderAdminList(){
   if(!admin || location.hash!=='#admin') return;
-  const todayS = fmtDate(new Date());
-  const evs = data.events.slice().sort((a,b)=> a.date===b.date ? (a.start||'').localeCompare(b.start||'') : a.date.localeCompare(b.date));
-  const up = evs.filter(e=>e.date>=todayS);
-  const past = evs.filter(e=>e.date<todayS).reverse();
-  let html='';
-  html += '<div class="sec-title">近期與未來日程</div>';
-  html += up.length ? up.map(arow).join('') : '<div class="empty">目前沒有排定的日程</div>';
-  if(past.length) html += '<div class="sec-title">過往日程</div>' + past.map(arow).join('');
-  $('adminList').innerHTML = html;
+  const y=state.adminMonth.getFullYear(), m=state.adminMonth.getMonth();
+  $('aTitle').textContent = y+'年'+(m+1)+'月';
+  const ym = y+'-'+String(m+1).padStart(2,'0');
+  const items = data.events.filter(e=>e.date.startsWith(ym)).map(e=>({e, fx:false}));
+  const lastDay = new Date(y,m+1,0).getDate();
+  for(let dd=1; dd<=lastDay; dd++){
+    const f = fixedFor(new Date(y,m,dd));
+    if(f) items.push({e:f, fx:true});
+  }
+  items.sort((a,b)=> a.e.date===b.e.date ? (a.e.start||'').localeCompare(b.e.start||'') : a.e.date.localeCompare(b.e.date));
+  $('adminList').innerHTML = items.length ? items.map(x=>arow(x.e,x.fx)).join('') : '<div class="empty">本月尚無日程</div>';
 }
+$('aPrev').onclick=()=>{ state.adminMonth.setMonth(state.adminMonth.getMonth()-1); renderAdminList(); };
+$('aNext').onclick=()=>{ state.adminMonth.setMonth(state.adminMonth.getMonth()+1); renderAdminList(); };
+$('aToday').onclick=()=>{ state.adminMonth=new Date(); renderAdminList(); };
+// 編輯獻供：帶入表單，存檔後成為真實日程（同日同名的自動獻供會讓位，不會重複）
+window.editFx = ds=>{
+  const f = fixedFor(new Date(ds+'T00:00:00'));
+  if(!f) return;
+  f.id = null;
+  openEvForm(f);
+};
 
 /* ---------- 日程表單 ---------- */
 // 全天／指定時間 切換
