@@ -303,7 +303,7 @@ function lunar(d){
   const parts = lunarFmt.formatToParts(d);
   const m = parts.find(p=>p.type==='month').value;
   const dd = +parts.find(p=>p.type==='day').value;
-  return { t: dd===1 ? m : LDAY[dd], sp: dd===1 || dd===15, key: m+dd, full: m+LDAY[dd] };
+  return { t: dd===1 ? m : LDAY[dd], sp: dd===1 || dd===15, key: m+dd, full: m+LDAY[dd], m: m, dd: dd };
 }
 
 /* ---------- 農曆固定日程（初一十五獻供、聖誕成道日，存在試算表「農曆固定」） ---------- */
@@ -329,13 +329,25 @@ function buildFixedMap(){
     if(k) fixedMap[k] = f.name;
   });
 }
-// 這一天有沒有農曆固定日程，有就生一筆虛擬日程（不能編輯，管理要改試算表「農曆固定」）
+// 這一天有沒有獻供日程（不能編輯，管理要改試算表「農曆固定」）
+// 規則：獻供在正日的「前一天」進行 → 用隔天的農曆去比對清單
+// 例外：除夕（辭歲）在正日當天 —— 除夕的定義＝隔天是正月初一，大小月自動判斷
+// 閏月保險：清單沒列到的閏月初一/十五也自動補獻供，不會漏
 function fixedFor(d){
-  const lu = lunar(d);
-  if(!lu || !fixedMap[lu.key]) return null;
-  const ds = fmtDate(d);
-  return { id:'fx-'+ds, temple:'各佛堂', name:fixedMap[lu.key], date:ds, endDate:'',
-           start:'', end:'', type:'獻供', place:'', link:'', note:'農曆'+lu.full+'固定日程' };
+  if(!lunarFmt) return null;
+  const next = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1);
+  const lu = lunar(next);
+  if(!lu) return null;
+  const mk = name => ({ id:'fx-'+fmtDate(d), temple:'各佛堂', name:name+'獻供', date:fmtDate(d),
+    endDate:'', start:'', end:'', type:'獻供', place:'', link:'', note:'' });
+  if(lu.key==='正月1'){ // 今天是除夕
+    const cx = fixedMap['臘月29'] || fixedMap['臘月30'];
+    if(cx && cx.includes('除夕')) return mk(cx);
+  }
+  let name = fixedMap[lu.key];
+  if(name && name.includes('除夕')) return null; // 除夕已按正日處理，不再提前一天
+  if(!name && lu.m.startsWith('閏') && (lu.dd===1 || lu.dd===15)) name = lu.full;
+  return name ? mk(name) : null;
 }
 // 某一天的全部日程 = 一般日程 + 農曆固定
 function dayList(byDate, d){
@@ -458,7 +470,7 @@ function evCard(e){
     </div>
   </div>`;
 }
-// 近 7 日摘要（依目前佛堂篩選）
+// 近 7 日摘要（依目前佛堂篩選；不含農曆獻供，獻供看下方月曆）
 function renderWeek(){
   const byDate = expandByDate(eventsFiltered());
   const wd=['日','一','二','三','四','五','六'];
@@ -466,7 +478,7 @@ function renderWeek(){
   let html='';
   for(let i=0;i<7;i++){
     const d=new Date(); d.setDate(d.getDate()+i);
-    const ds=fmtDate(d), list=dayList(byDate,d);
+    const ds=fmtDate(d), list=byDate[ds]||[];
     if(!list.length) continue;
     html += `<div class="day-title">${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）${ds===todayS?'<span class="badge-today">今天</span>':''}</div>`
       + list.map(evCard).join('');
